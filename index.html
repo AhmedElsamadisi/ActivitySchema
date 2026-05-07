@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Activity Schema</title>
+  <meta name="description" content="Activity Schema is a simple data modeling approach for modern warehouses: one activity stream, reusable activities, and analytics without fragile dependency graphs." />
+  <style>
+    :root {
+      --bg: #fbfaf7;
+      --ink: #161616;
+      --muted: #62615d;
+      --line: #e8e2d8;
+      --panel: #ffffff;
+      --accent: #2f6f68;
+      --accent-soft: #e4f0ec;
+      --code: #f5f1ea;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(47,111,104,.12), transparent 34rem),
+        radial-gradient(circle at 90% 10%, rgba(214,160,95,.16), transparent 30rem),
+        var(--bg);
+      line-height: 1.55;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 22px 72px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 72px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 3px;
+      transform: rotate(-8deg);
+    }
+
+    .mark span {
+      border-radius: 7px;
+      background: var(--accent);
+    }
+
+    .mark span:nth-child(2) { opacity: .72; }
+    .mark span:nth-child(3) { opacity: .42; }
+    .mark span:nth-child(4) { background: transparent; }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    nav a { text-decoration: none; }
+    nav a:hover { color: var(--ink); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr);
+      gap: 42px;
+      align-items: center;
+      margin-bottom: 74px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.6);
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(48px, 8vw, 86px);
+      line-height: .95;
+      letter-spacing: -0.075em;
+    }
+
+    .hero p {
+      margin: 24px 0 0;
+      max-width: 640px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 650;
+    }
+
+    .button.secondary {
+      background: rgba(255,255,255,.55);
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .diagram {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 24px 80px rgba(31, 25, 16, .08);
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .layer {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      padding: 16px;
+    }
+
+    .layer strong {
+      display: block;
+      letter-spacing: -0.02em;
+    }
+
+    .layer span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .arrow {
+      text-align: center;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    section {
+      margin-top: 76px;
+    }
+
+    .section-head {
+      max-width: 760px;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: -0.055em;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      font-size: 18px;
+      margin: 14px 0 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 22px;
+      background: rgba(255,255,255,.68);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      letter-spacing: -0.03em;
+      font-size: 19px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .code-panel {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: #151515;
+      color: #f7f2e9;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(31, 25, 16, .12);
+    }
+
+    .code-head {
+      display: flex;
+      gap: 7px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .code-head span {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.28);
+    }
+
+    pre {
+      margin: 0;
+      padding: 20px;
+      overflow: auto;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .schema-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,.75);
+    }
+
+    .schema-table th,
+    .schema-table td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    .schema-table tr:last-child td { border-bottom: 0; }
+    .schema-table th { color: var(--muted); font-size: 13px; }
+    .schema-table code { background: var(--code); padding: 3px 6px; border-radius: 8px; }
+
+    .callout {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      padding: 28px;
+      background: var(--accent-soft);
+    }
+
+    .callout p { margin: 8px 0 0; color: var(--muted); }
+
+    footer {
+      margin-top: 72px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 860px) {
+      header { margin-bottom: 48px; }
+      nav { display: none; }
+      .hero { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .callout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a class="brand" href="/" aria-label="Activity Schema home">
+        <span class="mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span>Activity Schema</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#why">Why</a>
+        <a href="#structure">Structure</a>
+        <a href="#querying">Querying</a>
+        <a href="/spec">Spec</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> A data modeling standard for modern warehouses</div>
+          <h1>One activity stream. Every analysis.</h1>
+          <p>
+            Activity Schema replaces sprawling dependency graphs with a single, time-series model of what entities do. Model business events once, then assemble them into metrics, cohorts, reports, and analysis without rebuilding the warehouse every time the question changes.
+          </p>
+          <div class="actions">
+            <a class="button" href="/spec">Read the spec</a>
+            <a class="button secondary" href="https://github.com/AhmedElsamadisi/ActivitySchema">View on GitHub</a>
+          </div>
+        </div>
+
+        <aside class="diagram" aria-label="Activity Schema dependency graph">
+          <div class="stack">
+            <div class="layer">
+              <strong>Raw source tables</strong>
+              <span>Orders, tickets, emails, app events, billing records, product usage.</span>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="layer">
+              <strong>Activity transformations</strong>
+              <span>Small SQL definitions that turn source records into business activities.</span>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="layer">
+              <strong>Activity stream</strong>
+              <span>A single table with entity, timestamp, activity, and compact metadata.</span>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="layer">
+              <strong>Analytics, BI, AI, and workflows</strong>
+              <span>Queries assemble activities by customer and time instead of fragile foreign keys.</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="why">
+        <div class="section-head">
+          <h2>Built to remove modeling complexity.</h2>
+          <p>Traditional schemas create many definitions, many joins, and many layers. Activity Schema keeps the modeling layer flat and lets analysis happen from a consistent event structure.</p>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>One definition per concept</h3>
+            <p>Each activity is defined once and reused anywhere it matters.</p>
+          </div>
+          <div class="card">
+            <h3>No fragile dependency graph</h3>
+            <p>Downstream queries depend on the activity stream, not a maze of intermediate models.</p>
+          </div>
+          <div class="card">
+            <h3>Reusable analysis</h3>
+            <p>Because every implementation has the same shape, queries can be adapted by swapping activity names.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="structure">
+        <div class="section-head">
+          <h2>The core table is intentionally small.</h2>
+          <p>The activity stream captures the minimum shared structure needed to relate every business event over time.</p>
+        </div>
+        <table class="schema-table">
+          <thead>
+            <tr>
+              <th>Column</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>activity_id</code></td><td>Unique identifier for the activity record.</td></tr>
+            <tr><td><code>ts</code></td><td>Timestamp, in UTC, for when the activity occurred.</td></tr>
+            <tr><td><code>customer</code></td><td>The globally unique identifier for the modeled entity.</td></tr>
+            <tr><td><code>activity</code></td><td>The business action, such as <code>completed_order</code> or <code>submitted_ticket</code>.</td></tr>
+            <tr><td><code>feature_1..3</code></td><td>Compact, activity-specific metadata.</td></tr>
+            <tr><td><code>revenue_impact</code></td><td>Revenue or cost associated with the activity.</td></tr>
+            <tr><td><code>activity_occurrence</code></td><td>The number of times this entity has done this activity so far.</td></tr>
+            <tr><td><code>activity_repeated_at</code></td><td>The timestamp of the next instance of the same activity for the same entity.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="querying">
+        <div class="section-head">
+          <h2>Queries relate activities by entity and time.</h2>
+          <p>Instead of hunting for foreign keys, you join the stream to itself and ask how activities happened before, after, or between other activities.</p>
+        </div>
+        <div class="code-panel">
+          <div class="code-head" aria-hidden="true"><span></span><span></span><span></span></div>
+          <pre><code>SELECT
+  DATE_TRUNC('month', ts) AS month,
+  COUNT(1) AS total_orders,
+  SUM(revenue_impact) AS total_revenue
+FROM customer_stream
+WHERE activity = 'completed_order'
+GROUP BY month
+ORDER BY month;</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <div class="callout">
+          <div>
+            <h2>Start with the spec.</h2>
+            <p>The full specification explains entities, activities, metadata, stream structure, modeling, querying, and known implementations.</p>
+          </div>
+          <a class="button" href="/spec">Open spec</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Activity Schema</span>
+      <span>Created by Ahmed Elsamadisi. Maintained in the open on GitHub.</span>
+    </footer>
+  </div>
+</body>
+</html>
